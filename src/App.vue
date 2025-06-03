@@ -23,7 +23,7 @@ import Items from './components/Items.vue'
 import NPC from './components/NPC.vue'
 import SaveExitButton from './components/SaveExitButton.vue'
 import DialogBox from './components/DialogBox.vue'
-
+import GuessWordGameVue from './components/GuessWordGame.vue'
 const currentView = ref('start')
 
 const startGame = () => {

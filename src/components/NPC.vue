@@ -13,7 +13,7 @@ import { ref } from 'vue'
 import DialogBox from './DialogBox.vue'
 
 const dialogVisible = ref(false)
-const dialogText = ref('你好，冒险者。我有一些事情想告诉你……')
+const dialogText = ref('芝士雪豹')
 
 const showDialog = () => {
   dialogVisible.value = true

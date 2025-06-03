@@ -4,11 +4,34 @@
     <SceneSwitcher @changeScene="onChangeScene":buttons="sceneButtons" />
     <Background scene="scene1" />
 
+    <!-- 故事生成 -->
+    <StoryProvider
+      background="你是喜多川百音子，现在在年幼的时候。1970年左右，日本经济发展很好，
+      你每天上完课都要在校外的画室练习画画。你画的是水彩，坐在凳子上画，今天的画马上画完了"
+      ending="我完成了今天的练习，在画室里面找找有没有好玩的物品"
+      scene="在家外的老师开的画室，环境内并没有很显眼的物品"
+      @ready="onStoryReady"
+    />
+
     <!-- 对话框组件，显示当前角色的台词 -->
     <DialogBox
       :character="dialog.character"
       :text="dialog.text"
       @next="nextDialog"
+    />
+
+    <!-- 道具组件，显示在对话框之外 -->
+    <Item 
+      :positions="itemPositions" 
+      @click="startGame" 
+    />
+
+    <GuessWordGame 
+      v-if="showGame"
+      @game-ended="handleGameEnded"
+    />
+
+    <div class="click-layer" @click="nextDialog"></div>
     />
   </div>
 </template>
@@ -19,49 +42,94 @@ import { ref } from 'vue'
 import Background from '/src/components/Background.vue'
 import DialogBox from '/src/components/DialogBox.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
+import StoryProvider from '/src/components/StoryProvider.vue'
+import Item from '/src/components/items.vue' // 引入道具组件
+import GuessWordGame from '/src/game/GuessWordGame.vue' // 引入猜词游戏组件
 
-// 对话数据，可以根据需要改成从 props 或 store 获取
-const dialogs = [
-  { character: '小明', text: '这里是我们的冒险开始的地方。' },
-  { character: '小红', text: '准备好了吗？前面充满未知。' },
-  { character: '小明', text: '走吧！' }
-]
+const emit = defineEmits(['changeScene'])
 
 const sceneButtons = [
-  { name: 'scene1', label: '暂时不离开' },
   { name: 'scene2', label: '庭院' },
   { name: 'scene3', label: '外婆的和服店' },
   // 这里可以只列出这几个，或者更少，灵活配置
 ]
 
-const currentIndex = ref(0)
-const dialog = ref(dialogs[currentIndex.value])
+// 定义道具位置，由父组件控制
+const itemPositions = ref([
+  { top: '60%', left: '500px' },
+])
 
-// 点击“下一句”按钮时调用
-const nextDialog = () => {
-  if (currentIndex.value < dialogs.length - 1) {
+const dialog = ref({ character: '', text: '' })
+const dialogs = ref([])
+const currentIndex = ref(0)
+
+// 控制猜词游戏的显示状态
+const showGame = ref(false)
+
+// 开始游戏的函数
+const startGame = () => {
+  showGame.value = true
+  // 可以在这里添加其他游戏初始化逻辑
+}
+
+// 处理游戏结束的函数
+const handleGameEnded = () => {
+  showGame.value = false
+  // 可以在这里添加游戏结束后的逻辑
+}
+
+function onStoryReady(generatedDialogs) {
+  dialogs.value = generatedDialogs
+  currentIndex.value = 0
+  dialog.value = dialogs.value[0] || { character: '系统', text: '剧情为空' }
+}
+
+function nextDialog() {
+  if (currentIndex.value < dialogs.value.length - 1) {
     currentIndex.value++
-    dialog.value = dialogs[currentIndex.value]
+    dialog.value = dialogs.value[currentIndex.value]
   } else {
-    // 对话结束后的操作，例如进入下一个场景
     console.log('对话结束，可以切换场景')
   }
 }
 
-// 触发父组件事件
 function onChangeScene(newScene) {
-  // 这里把事件发给父组件
-  // script setup 默认提供了 emit 方法，要先导入
   emit('changeScene', newScene)
 }
-
-const emit = defineEmits(['changeScene'])
 </script>
 
 <style scoped>
 .scene1 {
   position: relative;
   width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 确保道具组件在场景中正确显示 */
+:deep(.items) {
+  position: absolute;
+  width: 100%;
   height: 100%;
+  pointer-events: none;
+}
+
+:deep(.item-image) {
+  position: absolute;
+  width: 100px;
+  height: 500;
+}
+
+/* 点击区域：默认覆盖整个中间区域 */
+.click-layer {
+  position: fixed;
+  top: 75%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
 }
 </style>

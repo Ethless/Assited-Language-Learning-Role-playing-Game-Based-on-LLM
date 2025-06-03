@@ -1,8 +1,11 @@
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import re
 import json
 import requests
 from typing import Dict, List, Optional, Union, Callable
+
 
 class DeepSeekClient:
     """

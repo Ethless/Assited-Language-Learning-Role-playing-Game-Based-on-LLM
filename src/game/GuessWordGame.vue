@@ -6,9 +6,9 @@
         @select-item="selectItem"
       />
       <ItemGuess
-        v-else
-        :item="currentItem"
-        @back="backToList"
+      :item="currentItem"
+      @back="backToList"
+      @action-completed="handleActionCompleted"
       />
     </div>
   </template>
@@ -43,7 +43,12 @@
       },
       backToList() {
         this.currentItem = null
-      }
+      },
+      handleActionCompleted(payload) {
+    console.log('道具操作完成:', payload)
+    // 可以在这里更新道具状态或跳转到其他界面
+    this.currentItem = null // 返回道具列表
+  }
     }
   }
   </script>

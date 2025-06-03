@@ -1,68 +1,89 @@
 <template>
   <div class="scene0">
-    <!-- 只负责发出事件通知，不直接操作 currentView -->
-    <SceneSwitcher @changeScene="onChangeScene":buttons="sceneButtons"  />
+    <!-- 场景切换按钮 -->
+    <SceneSwitcher @changeScene="onChangeScene" :buttons="sceneButtons" />
+
+    <!-- 背景图层 -->
     <Background scene="scene0" />
 
-    <!-- 对话框组件，显示当前角色的台词 -->
+    <!-- 故事生成 -->
+    <StoryProvider
+      background="你是喜多川百音子，现在1964年，你刚出生没多久，当时日本经济发展很快，
+      出生前父亲升职了，家里也在东京世田谷区(富人区)买了新房子"
+      ending="画画太闷了，我想出门走走，该去哪里呢"
+      scene="在家中房间，被父母叮嘱没有画完画就不许出门"
+      @ready="onStoryReady"
+    />
+
+    <!-- 对话框 -->
     <DialogBox
       :character="dialog.character"
       :text="dialog.text"
-      @next="nextDialog"
     />
+
+    <!-- 可点击区域：覆盖整个中间画面 -->
+    <div class="click-layer" @click="nextDialog"></div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-// import api from "@/api";
+import api from '@/api'
 import Background from '/src/components/Background.vue'
 import DialogBox from '/src/components/DialogBox.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
+import StoryProvider from '/src/components/StoryProvider.vue'
 
-// 对话数据，可以根据需要改成从 props 或 store 获取
-const dialogs = [
-  { character: '小明', text: '这里是我们的冒险开始的地方。' },
-  { character: '小红', text: '准备好了吗？前面充满未知。' },
-  { character: '小明', text: '走吧！' }
-]
+const emit = defineEmits(['changeScene'])
 
 const sceneButtons = [
-  { name: 'scene0', label: '暂时不离开' },
   { name: 'scene1', label: '画室' },
   { name: 'scene2', label: '庭院' },
-  { name: 'scene3', label: '外婆的和服店' },
-  // 这里可以只列出这几个，或者更少，灵活配置
+  { name: 'scene3', label: '外婆的和服店' }
 ]
 
+const dialog = ref({ character: '', text: '' })
+const dialogs = ref([])
 const currentIndex = ref(0)
-const dialog = ref(dialogs[currentIndex.value])
 
-// 点击“下一句”按钮时调用
-const nextDialog = () => {
-  if (currentIndex.value < dialogs.length - 1) {
+function onStoryReady(generatedDialogs) {
+  dialogs.value = generatedDialogs
+  currentIndex.value = 0
+  dialog.value = dialogs.value[0] || { character: '系统', text: '剧情为空' }
+}
+
+function nextDialog() {
+  if (currentIndex.value < dialogs.value.length - 1) {
     currentIndex.value++
-    dialog.value = dialogs[currentIndex.value]
+    dialog.value = dialogs.value[currentIndex.value]
   } else {
-    // 对话结束后的操作，例如进入下一个场景
     console.log('对话结束，可以切换场景')
   }
 }
 
-// 触发父组件事件
 function onChangeScene(newScene) {
-  // 这里把事件发给父组件
-  // script setup 默认提供了 emit 方法，要先导入
   emit('changeScene', newScene)
 }
-
-const emit = defineEmits(['changeScene'])
 </script>
 
 <style scoped>
 .scene0 {
   position: relative;
   width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 点击区域：默认覆盖整个中间区域 */
+.click-layer {
+  position: fixed;
+  top: 75%;
+  left: 0;
+  width: 100%;
   height: 100%;
+  z-index: 9999;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
 }
 </style>

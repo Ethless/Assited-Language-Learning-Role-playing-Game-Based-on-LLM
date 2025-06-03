@@ -4,9 +4,12 @@ from core.DSchat import DeepSeekClient
 from core.chatRobot import story_NPC_chat
 
 router = APIRouter()
-client = DeepSeekClient()
-npc_bot = story_NPC_chat(client)
 
+# 创建 NPC 对话管理实例
+client = DeepSeekClient()
+npc = story_NPC_chat(client)
+
+# 请求体模型
 class NPCSetting(BaseModel):
     name: str
     personality: str
@@ -18,35 +21,35 @@ class UserInput(BaseModel):
 
 @router.post("/set_npc")
 def set_npc(setting: NPCSetting):
-    npc_bot.set_npc_setting(
+    npc.set_npc_setting(
         name=setting.name,
         personality=setting.personality,
         background=setting.background,
         environment=setting.environment
     )
-    return {"message": "NPC设定成功"}
+    return {"message": f"NPC {setting.name} 设置完成"}
 
 @router.get("/dialogue")
-def generate_npc_dialogue():
-    return npc_bot.generate_dialogue()
+def get_dialogue():
+    return npc.generate_dialogue()
 
 @router.get("/options")
-def generate_npc_options():
-    return {"options": npc_bot.generate_options()}
+def get_options():
+    return {"options": npc.generate_options()}
 
 @router.post("/respond")
-def respond_to_npc(input: UserInput):
-    npc_bot.add_user_response(input.user_input)
-    return {"message": "已记录用户输入"}
-
-@router.get("/goodbye")
-def goodbye(reason: str = "有急事"):
-    return npc_bot.generate_goodbye(reason)
+def respond(input: UserInput):
+    npc.add_user_response(input.user_input)
+    return {"message": "回应已记录"}
 
 @router.get("/summary")
 def get_summary():
-    return npc_bot.summarize_conversation()
+    return npc.summarize_conversation()
+
+@router.get("/goodbye")
+def goodbye(reason: str = "有急事"):
+    return npc.generate_goodbye(reason)
 
 @router.get("/memory")
-def get_npc_memory():
-    return npc_bot.get_all_memory()
+def get_memory():
+    return {"memory": npc.get_all_memory()}

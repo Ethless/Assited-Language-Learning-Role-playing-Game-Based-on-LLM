@@ -59,7 +59,7 @@ onMounted(() => {
   z-index: 1000;
   display: flex;
   justify-content: flex-start;
-  align-items: flex-end;
+  align-items: flex-start;
   pointer-events: none;
 }
 
@@ -75,9 +75,11 @@ onMounted(() => {
 }
 
 .dialog-text {
+  padding-top: 10px;
   position: relative;
-  margin-left: 300px;
-  margin-bottom: 115px;
+  margin-left: 200px;
+  margin-bottom: 25px;
+  margin-right: 200px;
 
   font-family: 'Source Han Sans SC', '思源黑体', sans-serif;
   font-size: 24px;

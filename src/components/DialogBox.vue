@@ -1,7 +1,7 @@
 <template>
   <div class="dialog-container">
     <div class="dialog-overlay"></div>
-    <img src="@/assets/player.png" alt="装饰贴图" class="dialog-image" />
+    <!-- <img src="@/assets/player.png" alt="装饰贴图" class="dialog-image" /> -->
     <div class="dialog-text" ref="textRef">{{ displayedText }}</div>
   </div>
 </template>

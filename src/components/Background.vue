@@ -21,6 +21,14 @@ const backgroundStyle = computed(() => {
     imagePath = new URL('@/assets/background_start.png', import.meta.url).href
   } else if (props.scene === 'game') {
     imagePath = new URL('@/assets/background_game.png', import.meta.url).href
+  } else if (props.scene === 'scene0') {
+    imagePath = new URL('@/assets/background/bg1.jpg', import.meta.url).href
+  } else if (props.scene === 'scene1') {
+    imagePath = new URL('@/assets/background/bg2.jpg', import.meta.url).href
+  } else if (props.scene === 'scene2') {
+    imagePath = new URL('@/assets/background/bg3.jpg', import.meta.url).href
+  } else if (props.scene === 'scene3') {
+    imagePath = new URL('@/assets/background/bg4.jpg', import.meta.url).href
   }
 
   return {

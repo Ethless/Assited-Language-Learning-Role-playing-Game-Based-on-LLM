@@ -1,13 +1,7 @@
 <template>
   <div class="scene2">
-    <!-- 场景切换按钮 -->
-    <SceneSwitcher
-      @sceneSwitchIntent="onSceneSwitchIntent"
-      @changeScene="onChangeScene"
-      :buttons="sceneButtons"
-    />
     <Background scene="scene2" />
-
+    
     <!-- 故事生成 -->
     <StoryProvider
       background="你是喜多川百音子，现在在年幼刚出生没多久的时候。当时日本经济发展很快，
@@ -23,24 +17,45 @@
       v-if="showDialogBox && useFullDialog"
       :character="dialog.character"
       :text="dialog.text"
+      @click="handleDialogClick"
     />
     <DialogBox
       v-else-if="showDialogBox"
       :character="dialog.character"
       :text="dialog.text"
+      @click="handleDialogClick"
+    />
+
+    <!-- 场景切换按钮 -->
+    <SceneSwitcher
+      ref="sceneSwitcherRef"
+      @sceneSwitchIntent="onSceneSwitchIntent"
+      @changeScene="onChangeScene"
+      :buttons="sceneButtons"
+    />
+
+    <Guessword
+      v-if="isGuesswordVisible"
+      :options="['丢掉', '拿去喂狗', '藏起来']"
+      @guess="onGuess"
     />
 
     <!-- ✅ 道具组件，监听点击事件 -->
-    <Item :positions="itemPositions" @itemClicked="onItemClicked" />
+    <Item
+      ref="itemRef"
+      :positions="itemPositions"
+      @itemClicked="onItemClicked"
+      @cleared="onCleared"
+    />
 
     <!-- ✅ 添加笔记本按钮组件 -->
     <Notebook />
 
-    <!-- 猜词游戏 -->
-    <GuessWordGame v-if="showGame" @game-ended="handleGameEnded" />
-
     <!-- 点击区域 -->
-    <div class="click-layer" @click="nextDialog"></div>
+    <div
+    class="click-layer" 
+    @click="handleDialogClick">
+  </div>
   </div>
 </template>
 
@@ -54,9 +69,8 @@ import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
 import Item from '/src/components/Item.vue'
 import Notebook from '/src/components/Notebook.vue' // ✅ 引入笔记本组件
-// import GuessWordGame from '/src/components/GuessWordGame.vue'
+import Guessword from '/src/game/Guessword.vue'
 
-const emit = defineEmits(['changeScene'])
 
 const sceneButtons = [
   { name: 'scene1', label: '画室' },
@@ -64,11 +78,17 @@ const sceneButtons = [
 ]
 
 // 对话控制逻辑
+const emit = defineEmits(['changeScene'])
 const dialog = ref({ character: '', text: '' })
 const dialogs = ref([])
 const currentIndex = ref(0)
 const showDialogBox = ref(true)
 const useFullDialog = ref(false) // ✅ 是否使用全屏对话框
+const isGuesswordVisible = ref(false)
+const triggeredFromItem = ref(false) // 只有点击了放大图物品才设为 true
+const itemRef = ref(null)
+const sceneSwitcherRef = ref(null)
+
 
 // ✅ 道具位置数组
 const itemPositions = ref([
@@ -87,17 +107,34 @@ function onStoryReady(generatedDialogs) {
   useFullDialog.value = false // 剧情使用普通对话框
 }
 
-// ✅ 点击继续剧情或关闭对话框
-function nextDialog() {
+
+function handleDialogClick() {
+  itemRef.value?.clearClickedImage()
+  sceneSwitcherRef.value?.hideOptions?.()
+
   if (currentIndex.value < dialogs.value.length - 1) {
     currentIndex.value++
     dialog.value = dialogs.value[currentIndex.value]
-    useFullDialog.value = false // 剧情使用普通对话框
+    useFullDialog.value = false
   } else if (showDialogBox.value) {
     showDialogBox.value = false
+
+    // ✅ 仅在来自物品放大图点击、并且被清除后触发猜词
+    if (itemRef.value?.wasCleared && triggeredFromItem.value) {
+      console.log('对话框关闭，触发猜词')
+      isGuesswordVisible.value = true
+      itemRef.value.wasCleared = false
+      triggeredFromItem.value = false // ✅ 重置标志
+    }
   } else {
     console.log('剧情已结束且对话框隐藏')
   }
+}
+
+
+function onGuess(option) {
+  console.log('猜测结果：', option)
+  isGuesswordVisible.value = false // ✅ 点完按钮隐藏组件
 }
 
 // ✅ 道具点击使用全屏对话框
@@ -105,6 +142,7 @@ function onItemClicked(payload) {
   dialog.value = payload
   useFullDialog.value = true
   showDialogBox.value = true
+  triggeredFromItem.value = true // ✅ 设置标志
 }
 
 // ✅ 场景切换 intent 显示系统提示对话框（全屏）
@@ -121,6 +159,7 @@ function onSceneSwitchIntent() {
 function onChangeScene(newScene) {
   emit('changeScene', newScene)
 }
+
 </script>
 
 <style scoped>
@@ -156,6 +195,5 @@ function onChangeScene(newScene) {
   z-index: 100;
   background: transparent;
   cursor: pointer;
-  pointer-events: auto;
 }
 </style>

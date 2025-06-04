@@ -1,6 +1,7 @@
 <!-- Item.vue -->
 <template>
   <div class="items">
+    <!-- 道具贴图 -->
     <img
       v-for="(img, index) in selectedImages"
       :key="index"
@@ -11,11 +12,29 @@
       @click="handleClick(index)"
     />
 
+    <!-- 居中放大的贴图 -->
+    <img
+      v-if="clickedImage"
+      :src="clickedImage"
+      class="enlarged-image"
+      alt="放大贴图"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+
+const clickedImage = ref(null)
+const emit = defineEmits(['itemClicked', 'cleared'])
+
+function clearClickedImage() {
+  clickedImage.value = null
+  emit('cleared')
+  this.wasCleared = true  // 添加标记
+}
+
+defineExpose({ clearClickedImage })
 
 const props = defineProps({
   positions: {
@@ -48,15 +67,13 @@ function getImageStyle(position) {
   }
 }
 
-const emit = defineEmits(['itemClicked'])
-
 function handleClick(index) {
+  clickedImage.value = selectedImages.value[index] // ✅ 设置放大图
   emit('itemClicked', {
     character: '系统',
     text: `你点击了道具 ${index + 1}`
   })
 }
-
 </script>
 
 <style scoped>
@@ -70,5 +87,16 @@ function handleClick(index) {
   position: absolute;
   pointer-events: auto;
   z-index: 10;
+}
+
+.enlarged-image {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  width: 250px;
+  height: auto;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  pointer-events: none;
 }
 </style>

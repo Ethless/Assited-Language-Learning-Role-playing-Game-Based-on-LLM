@@ -77,8 +77,8 @@ onMounted(() => {
   width: 100%;
   height: calc(100% - 175px); /* 除去下方对话框高度 */
   background-color: rgba(255, 255, 255, 0.2); /* 白色半透明 */
-  pointer-events: none;
-  z-index: 0;
+  pointer-events: auto;
+  z-index: 20;
 }
 
 /* 下方黑色遮罩（保持不变） */
@@ -89,15 +89,14 @@ onMounted(() => {
   width: 100%;
   height: 175px;
   background-color: rgba(0, 0, 0, 0.5);
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 0;
 }
 
 .dialog-text {
   position: absolute;
   bottom: 120px; /* 距离底部一点距离，美观 */
-  left: 200px;
-  right: 200px;
+  left: 40%;
   z-index: 1;
 
   font-family: 'Source Han Sans SC', '思源黑体', sans-serif;

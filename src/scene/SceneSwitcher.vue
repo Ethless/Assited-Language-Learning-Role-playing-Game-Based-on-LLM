@@ -48,6 +48,12 @@ function switchTo(sceneName) {
   emit('changeScene', sceneName)
   showOptions.value = false
 }
+
+function hideOptions() {
+  showOptions.value = false
+}
+
+defineExpose({ hideOptions })
 </script>
 
 <style scoped>
@@ -73,11 +79,12 @@ function switchTo(sceneName) {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  z-index: 9999;
 }
 
 button {
   width: 400px;
-  padding: 15px 0;
+  padding: 15px;
   font-size: 20px;
   border: none;
   background-color: rgba(0, 0, 0, 0.6);
@@ -85,6 +92,7 @@ button {
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  z-index: 300;
 }
 
 button:hover {

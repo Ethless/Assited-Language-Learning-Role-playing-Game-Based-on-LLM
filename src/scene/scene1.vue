@@ -1,7 +1,7 @@
 <template>
   <div class="scene1">
     <!-- 只负责发出事件通知，不直接操作 currentView -->
-    <SceneSwitcher @changeScene="onChangeScene":buttons="sceneButtons" />
+    <SceneSwitcher @changeScene="onChangeScene" :buttons="sceneButtons" />
     <Background scene="scene1" />
 
     <!-- 故事生成 -->
@@ -21,9 +21,22 @@
     />
 
     <!-- 道具组件，显示在对话框之外 -->
+     <!-- 监听道具点击事件 -->
     <Item 
       :positions="itemPositions" 
-      @click="startGame" 
+    />
+    <!-- 对话框组件，初始时隐藏 -->
+    <DialogBox
+      v-if="showDialogBox"
+      :character="dialog.character"
+      :text="dialog.text"
+      @next="nextDialog"
+    />
+    <ItemInteraction
+      v-for="(item, index) in items"
+      :key="item.id"
+      :item="item"
+      :position="itemPositions[index]"
     />
 
     <GuessWordGame 
@@ -32,7 +45,6 @@
     />
 
     <div class="click-layer" @click="nextDialog"></div>
-    />
   </div>
 </template>
 
@@ -44,8 +56,9 @@ import DialogBox from '/src/components/DialogBox.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
 import Item from '/src/components/items.vue' // 引入道具组件
-import GuessWordGame from '/src/game/GuessWordGame.vue' // 引入猜词游戏组件
-
+import ItemInteraction from '/src/components/ItemInteraction.vue'
+//使用之前定义的道具数据
+import { allItems } from '/src/assets/data/items.js'; // 假设你将道具数据存储在 /src/data/items.js 中
 const emit = defineEmits(['changeScene'])
 
 const sceneButtons = [
@@ -53,31 +66,21 @@ const sceneButtons = [
   { name: 'scene3', label: '外婆的和服店' },
   // 这里可以只列出这几个，或者更少，灵活配置
 ]
+const items = ref(allItems);
 
 // 定义道具位置，由父组件控制
 const itemPositions = ref([
-  { top: '60%', left: '500px' },
+  { top: '55%', left: '1100px' },
 ])
 
 const dialog = ref({ character: '', text: '' })
 const dialogs = ref([])
 const currentIndex = ref(0)
 
-// 控制猜词游戏的显示状态
-const showGame = ref(false)
-
-// 开始游戏的函数
-const startGame = () => {
-  showGame.value = true
-  // 可以在这里添加其他游戏初始化逻辑
+function handleItemClicked(item) {
+  console.log('道具被点击:', item)
+  // 在这里可以添加其他逻辑，比如启动游戏
 }
-
-// 处理游戏结束的函数
-const handleGameEnded = () => {
-  showGame.value = false
-  // 可以在这里添加游戏结束后的逻辑
-}
-
 function onStoryReady(generatedDialogs) {
   dialogs.value = generatedDialogs
   currentIndex.value = 0
@@ -96,6 +99,7 @@ function nextDialog() {
 function onChangeScene(newScene) {
   emit('changeScene', newScene)
 }
+
 </script>
 
 <style scoped>

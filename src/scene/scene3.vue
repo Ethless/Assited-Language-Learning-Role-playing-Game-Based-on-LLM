@@ -45,7 +45,6 @@ import DialogBox from '/src/components/DialogBox.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
 import Item from '/src/components/items.vue' // 引入道具组件
-import GuessWordGame from '/src/game/GuessWordGame.vue' // 引入猜词游戏组件
 
 const emit = defineEmits(['changeScene'])
 
@@ -57,27 +56,12 @@ const sceneButtons = [
 
 // 定义道具位置，由父组件控制
 const itemPositions = ref([
-  { top: '60%', left: '500px' },
+  { top: '60%', left: '50%px' },
 ])
 
 const dialog = ref({ character: '', text: '' })
 const dialogs = ref([])
 const currentIndex = ref(0)
-
-// 控制猜词游戏的显示状态
-const showGame = ref(false)
-
-// 开始游戏的函数
-const startGame = () => {
-  showGame.value = true
-  // 可以在这里添加其他游戏初始化逻辑
-}
-
-// 处理游戏结束的函数
-const handleGameEnded = () => {
-  showGame.value = false
-  // 可以在这里添加游戏结束后的逻辑
-}
 
 function onStoryReady(generatedDialogs) {
   dialogs.value = generatedDialogs

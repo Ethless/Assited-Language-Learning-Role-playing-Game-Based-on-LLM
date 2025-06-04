@@ -1,93 +1,164 @@
 <template>
-  <div>
-    <!-- 默认笔记本贴图（右上角） -->
+  <div class="notebook-button-wrapper">
     <img
-      src="@/assets/notebook.png"
-      alt="Notebook Closed"
+      :src="notebookIcon"
       class="notebook-icon"
-      @click="showOpenNotebook = true"
+      alt="查看笔记"
+      @click="toggleNote"
     />
 
-    <!-- 翻开的笔记本弹窗 -->
-    <div v-if="showOpenNotebook" class="popup">
-      <div class="popup-content">
-        <img src="@/assets/notebook_open.png" alt="Notebook Open" />
-        <button @click="showOpenNotebook = false">关闭</button>
+    <div v-if="showNote" class="notebook-overlay" @click.self="toggleNote">
+      <img :src="notebookOpen" class="notebook-image" alt="打开的笔记本" />
+
+      <!-- ✅ 分类按钮 -->
+      <div class="notebook-tabs">
+        <button @click="setCategory('vocabulary')">词汇</button>
+        <button @click="setCategory('events')">事件</button>
+        <button @click="setCategory('characters')">人物</button>
       </div>
+
+      <!-- ✅ 显示当前分类文本 -->
+      <div class="notebook-text">{{ noteText }}</div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import notebookIcon from '@/assets/notebook-icon.svg'
+import notebookOpen from '@/assets/notebook-open.svg'
 
-const showOpenNotebook = ref(false)
+const showNote = ref(false)
+const currentCategory = ref('vocabulary')
+const noteText = ref('（加载中...）')
+
+// 所有笔记内容，初始为空
+const notes = {
+  vocabulary: '',
+  events: '',
+  characters: ''
+}
+
+// 通用的 txt 加载函数
+async function loadCategory(category) {
+  try {
+    const res = await fetch(`/note/${category}.txt`)
+    if (!res.ok) throw new Error('加载失败')
+    const text = await res.text()
+    notes[category] = text
+    if (currentCategory.value === category) {
+      noteText.value = text
+    }
+  } catch (err) {
+    notes[category] = `（${category} 笔记加载失败）`
+    if (currentCategory.value === category) {
+      noteText.value = notes[category]
+    }
+  }
+}
+
+// 切换分类按钮
+function setCategory(category) {
+  currentCategory.value = category
+  if (notes[category]) {
+    noteText.value = notes[category]
+  } else {
+    noteText.value = '（加载中...）'
+    loadCategory(category)
+  }
+}
+
+// 显示或隐藏笔记本
+function toggleNote() {
+  showNote.value = !showNote.value
+  if (showNote.value) {
+    setCategory(currentCategory.value)
+  }
+}
+
+// 初始加载 vocabulary
+onMounted(() => {
+  loadCategory('vocabulary')
+})
 </script>
 
 <style scoped>
-/* 合上笔记本图标定位到右上角 */
-.notebook-icon {
+.notebook-button-wrapper {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 80px;
-  height: auto;
-  cursor: pointer;
+  top: 5px;
+  right: 0px;
   z-index: 1000;
-  transition: transform 0.2s;
-  box-shadow: 0px 13px 4px rgba(0, 0, 0, 0.25);
-}
-.notebook-icon:hover {
-  transform: scale(1.1);
 }
 
-/* 覆盖全屏的弹窗 */
-.popup {
+.notebook-icon {
+  width: 150px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.notebook-icon:hover {
+  transform: scale(1.05);
+}
+
+.notebook-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 2000;
+  background-color: rgba(138, 138, 138, 0.439);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  z-index: 2000;
 }
 
-/* 弹窗内容容器铺满区域 */
-.popup-content {
-  position: relative;
-  width: 90vw;
-  height: 90vh;
-  overflow: hidden;
-  border-radius: 12px;
-}
-
-/* 图片铺满整个内容区域 */
-.open-notebook-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 12px;
-}
-
-/* 悬浮关闭按钮 */
-.close-btn {
+.notebook-image {
   position: absolute;
-  top: 10px;
-  right: 12px;
-  font-size: 24px;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.5);
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
+  width: 100vw;
+  height: 100vh;
+  top: -40px;
+  left: 0;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 1;
 }
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.7);
+
+.notebook-text {
+  position: absolute;
+  z-index: 2;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  padding: 20px;
+  font-size: 20px;
+  color: #333;
+  white-space: pre-line;
+  font-family: 'Source Han Serif SC', serif;
+  background-color: transparent;
+  border-radius: 12px;
+}
+
+.notebook-tabs {
+  position: absolute;
+  bottom: 60px;
+  left: 40px;
+  z-index: 3;
+  display: flex;
+  gap: 12px;
+}
+
+.notebook-tabs button {
+  padding: 8px 14px;
+  font-size: 16px;
+  font-family: 'Source Han Serif SC', serif;
+  background-color: #f8f8f8;
+  border: 1px solid #888;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.notebook-tabs button:hover {
+  background-color: #e0e0e0;
 }
 </style>

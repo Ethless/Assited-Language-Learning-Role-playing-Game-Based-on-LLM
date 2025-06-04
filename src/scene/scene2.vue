@@ -33,6 +33,9 @@
     <!-- ✅ 道具组件，监听点击事件 -->
     <Item :positions="itemPositions" @itemClicked="onItemClicked" />
 
+    <!-- ✅ 添加笔记本按钮组件 -->
+    <Notebook />
+
     <!-- 猜词游戏 -->
     <GuessWordGame v-if="showGame" @game-ended="handleGameEnded" />
 
@@ -50,6 +53,7 @@ import DialogBoxfull from '/src/components/DialogBox_fullscreen.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
 import Item from '/src/components/Item.vue'
+import Notebook from '/src/components/Notebook.vue' // ✅ 引入笔记本组件
 // import GuessWordGame from '/src/components/GuessWordGame.vue'
 
 const emit = defineEmits(['changeScene'])
@@ -149,7 +153,7 @@ function onChangeScene(newScene) {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 9999;
+  z-index: 100;
   background: transparent;
   cursor: pointer;
   pointer-events: auto;

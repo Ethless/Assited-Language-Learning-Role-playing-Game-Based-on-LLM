@@ -20,11 +20,6 @@
       @next="nextDialog"
     />
 
-    <!-- 道具组件，显示在对话框之外 -->
-     <!-- 监听道具点击事件 -->
-    <Item 
-      :positions="itemPositions" 
-    />
     <!-- 对话框组件，初始时隐藏 -->
     <DialogBox
       v-if="showDialogBox"
@@ -32,18 +27,6 @@
       :text="dialog.text"
       @next="nextDialog"
     />
-    <ItemInteraction
-      v-for="(item, index) in items"
-      :key="item.id"
-      :item="item"
-      :position="itemPositions[index]"
-    />
-
-    <GuessWordGame 
-      v-if="showGame"
-      @game-ended="handleGameEnded"
-    />
-
     <div class="click-layer" @click="nextDialog"></div>
   </div>
 </template>
@@ -55,10 +38,8 @@ import Background from '/src/components/Background.vue'
 import DialogBox from '/src/components/DialogBox.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
-import Item from '/src/components/items.vue' // 引入道具组件
-import ItemInteraction from '/src/components/ItemInteraction.vue'
-//使用之前定义的道具数据
-import { allItems } from '/src/assets/data/items.js'; // 假设你将道具数据存储在 /src/data/items.js 中
+// import Item from '/src/components/Items.vue' // 引入道具组件
+
 const emit = defineEmits(['changeScene'])
 
 const sceneButtons = [
@@ -66,21 +47,11 @@ const sceneButtons = [
   { name: 'scene3', label: '外婆的和服店' },
   // 这里可以只列出这几个，或者更少，灵活配置
 ]
-const items = ref(allItems);
-
-// 定义道具位置，由父组件控制
-const itemPositions = ref([
-  { top: '55%', left: '1100px' },
-])
 
 const dialog = ref({ character: '', text: '' })
 const dialogs = ref([])
 const currentIndex = ref(0)
 
-function handleItemClicked(item) {
-  console.log('道具被点击:', item)
-  // 在这里可以添加其他逻辑，比如启动游戏
-}
 function onStoryReady(generatedDialogs) {
   dialogs.value = generatedDialogs
   currentIndex.value = 0
@@ -108,20 +79,6 @@ function onChangeScene(newScene) {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-}
-
-/* 确保道具组件在场景中正确显示 */
-:deep(.items) {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-:deep(.item-image) {
-  position: absolute;
-  width: 100px;
-  height: 500;
 }
 
 /* 点击区域：默认覆盖整个中间区域 */

@@ -21,17 +21,6 @@
       @next="nextDialog"
     />
 
-    <!-- 道具组件，显示在对话框之外 -->
-    <Item 
-      :positions="itemPositions" 
-      @click="startGame" 
-    />
-
-    <GuessWordGame 
-      v-if="showGame"
-      @game-ended="handleGameEnded"
-    />
-
     <div class="click-layer" @click="nextDialog"></div>
     />
   </div>
@@ -44,7 +33,7 @@ import Background from '/src/components/Background.vue'
 import DialogBox from '/src/components/DialogBox.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
-import Item from '/src/components/items.vue' // 引入道具组件
+// import Item from '/src/components/Items.vue' // 引入道具组件
 
 const emit = defineEmits(['changeScene'])
 
@@ -53,11 +42,6 @@ const sceneButtons = [
   { name: 'scene2', label: '庭院' },
   // 这里可以只列出这几个，或者更少，灵活配置
 ]
-
-// 定义道具位置，由父组件控制
-const itemPositions = ref([
-  { top: '60%', left: '50%px' },
-])
 
 const dialog = ref({ character: '', text: '' })
 const dialogs = ref([])
@@ -89,20 +73,6 @@ function onChangeScene(newScene) {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-}
-
-/* 确保道具组件在场景中正确显示 */
-:deep(.items) {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-:deep(.item-image) {
-  position: absolute;
-  width: 100px;
-  height: 500;
 }
 
 /* 点击区域：默认覆盖整个中间区域 */

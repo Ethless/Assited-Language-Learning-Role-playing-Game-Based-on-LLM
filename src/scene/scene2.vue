@@ -1,7 +1,11 @@
 <template>
   <div class="scene2">
-    <!-- 只负责发出事件通知，不直接操作 currentView -->
-    <SceneSwitcher @changeScene="onChangeScene":buttons="sceneButtons" />
+    <!-- 场景切换按钮 -->
+    <SceneSwitcher
+      @sceneSwitchIntent="onSceneSwitchIntent"
+      @changeScene="onChangeScene"
+      :buttons="sceneButtons"
+    />
     <Background scene="scene2" />
 
     <!-- 故事生成 -->
@@ -14,75 +18,106 @@
       @ready="onStoryReady"
     />
 
-    <!-- 对话框 -->
+    <!-- ✅ 对话框，根据是否全屏切换显示不同组件 -->
+    <DialogBoxfull
+      v-if="showDialogBox && useFullDialog"
+      :character="dialog.character"
+      :text="dialog.text"
+    />
     <DialogBox
+      v-else-if="showDialogBox"
       :character="dialog.character"
       :text="dialog.text"
     />
 
-        <Item 
-      :positions="itemPositions" 
-      @click="startGame" 
-    />
+    <!-- ✅ 道具组件，监听点击事件 -->
+    <Item :positions="itemPositions" @itemClicked="onItemClicked" />
 
-    <GuessWordGame 
-      v-if="showGame"
-      @game-ended="handleGameEnded"
-    />
+    <!-- 猜词游戏 -->
+    <GuessWordGame v-if="showGame" @game-ended="handleGameEnded" />
 
-    <!-- 可点击区域：覆盖整个中间画面 -->
+    <!-- 点击区域 -->
     <div class="click-layer" @click="nextDialog"></div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-// import api from "@/api";
+
 import Background from '/src/components/Background.vue'
 import DialogBox from '/src/components/DialogBox.vue'
+import DialogBoxfull from '/src/components/DialogBox_fullscreen.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
-import Item from '/src/components/items.vue' // 引入道具组件
+import Item from '/src/components/Item.vue'
+// import GuessWordGame from '/src/components/GuessWordGame.vue'
 
 const emit = defineEmits(['changeScene'])
 
 const sceneButtons = [
   { name: 'scene1', label: '画室' },
   { name: 'scene3', label: '外婆的和服店' },
-  // 这里可以只列出这几个，或者更少，灵活配置
 ]
 
+// 对话控制逻辑
 const dialog = ref({ character: '', text: '' })
 const dialogs = ref([])
 const currentIndex = ref(0)
+const showDialogBox = ref(true)
+const useFullDialog = ref(false) // ✅ 是否使用全屏对话框
 
-// 定义道具位置，由父组件控制
+// ✅ 道具位置数组
 const itemPositions = ref([
-  { top: '60%', left: '500px' },
+  { top: '65%', left: '500px' },
+  { top: '80%', left: '300px' },
+  { top: '70%', left: '100px' },
+  { top: '80%', left: '700px' },
 ])
 
-
-
+// ✅ StoryProvider 回调
 function onStoryReady(generatedDialogs) {
   dialogs.value = generatedDialogs
   currentIndex.value = 0
   dialog.value = dialogs.value[0] || { character: '系统', text: '剧情为空' }
+  showDialogBox.value = true
+  useFullDialog.value = false // 剧情使用普通对话框
 }
 
+// ✅ 点击继续剧情或关闭对话框
 function nextDialog() {
   if (currentIndex.value < dialogs.value.length - 1) {
     currentIndex.value++
     dialog.value = dialogs.value[currentIndex.value]
+    useFullDialog.value = false // 剧情使用普通对话框
+  } else if (showDialogBox.value) {
+    showDialogBox.value = false
   } else {
-    console.log('对话结束，可以切换场景')
+    console.log('剧情已结束且对话框隐藏')
   }
 }
 
+// ✅ 道具点击使用全屏对话框
+function onItemClicked(payload) {
+  dialog.value = payload
+  useFullDialog.value = true
+  showDialogBox.value = true
+}
+
+// ✅ 场景切换 intent 显示系统提示对话框（全屏）
+function onSceneSwitchIntent() {
+  dialog.value = {
+    character: '系统',
+    text: '你想去哪个场景？'
+  }
+  useFullDialog.value = true
+  showDialogBox.value = true
+}
+
+// 场景切换
 function onChangeScene(newScene) {
   emit('changeScene', newScene)
 }
 </script>
-
 
 <style scoped>
 .scene2 {
@@ -92,21 +127,22 @@ function onChangeScene(newScene) {
   overflow: hidden;
 }
 
-/* 确保道具组件在场景中正确显示 */
+/* ✅ 确保道具组件显示正常 */
 :deep(.items) {
   position: absolute;
   width: 100%;
   height: 100%;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 :deep(.item-image) {
   position: absolute;
   width: 100px;
-  height: 500;
+  height: auto;
+  z-index: 10;
 }
 
-/* 点击区域：默认覆盖整个中间区域 */
+/* 点击层样式 */
 .click-layer {
   position: fixed;
   top: 75%;

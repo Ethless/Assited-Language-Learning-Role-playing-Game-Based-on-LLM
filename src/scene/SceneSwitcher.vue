@@ -4,7 +4,7 @@
       src="@/assets/switch-icon.png" 
       alt="切换场景" 
       class="toggle-icon" 
-      @click="showOptions = !showOptions" 
+      @click="toggleOptions"
     />
 
     <div v-if="showOptions" class="options">
@@ -22,10 +22,9 @@
 <script setup>
 import { ref, defineEmits, defineProps } from 'vue'
 
-const emit = defineEmits(['changeScene'])
+const emit = defineEmits(['changeScene', 'sceneSwitchIntent']) // ✅ 增加 sceneSwitchIntent
 const showOptions = ref(false)
 
-// 传入按钮数组 [{ name: 'start', label: '开始界面' }, ...]
 const props = defineProps({
   buttons: {
     type: Array,
@@ -38,12 +37,18 @@ const props = defineProps({
   }
 })
 
+function toggleOptions() {
+  showOptions.value = !showOptions.value
+  if (showOptions.value) {
+    emit('sceneSwitchIntent') // ✅ 在“展开切换面板”时就触发提示事件
+  }
+}
+
 function switchTo(sceneName) {
   emit('changeScene', sceneName)
   showOptions.value = false
 }
 </script>
-
 
 <style scoped>
 .scene-switcher {
@@ -59,7 +64,6 @@ function switchTo(sceneName) {
   cursor: pointer;
 }
 
-/* 中央按钮组容器 */
 .options {
   position: fixed;
   top: 40%;
@@ -71,13 +75,12 @@ function switchTo(sceneName) {
   gap: 20px;
 }
 
-/* 场景按钮样式 */
 button {
   width: 400px;
   padding: 15px 0;
   font-size: 20px;
   border: none;
-  background-color: rgba(0, 0, 0, 0.6); /* 半透明黑底 */
+  background-color: rgba(0, 0, 0, 0.6);
   color: white;
   border-radius: 8px;
   cursor: pointer;
@@ -85,7 +88,6 @@ button {
 }
 
 button:hover {
-  background-color: rgba(0, 0, 0, 0.8); /* 悬停时更不透明 */
+  background-color: rgba(0, 0, 0, 0.8);
 }
-
 </style>

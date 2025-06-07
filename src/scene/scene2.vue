@@ -34,6 +34,12 @@
       :buttons="sceneButtons"
     />
 
+    <GuesswordExtended
+      v-if="isGuesswordExtendedVisible"
+      :options1="['拿去画下来', '送给外婆', '装进罐子里']"
+      @guess="onExtendedGuess"
+    />
+
     <Guessword
       v-if="isGuesswordVisible"
       :options="['丢掉', '拿去喂狗', '藏起来']"
@@ -70,7 +76,7 @@ import StoryProvider from '/src/components/StoryProvider.vue'
 import Item from '/src/components/Item.vue'
 import Notebook from '/src/components/Notebook.vue' // ✅ 引入笔记本组件
 import Guessword from '/src/game/Guessword.vue'
-
+import GuesswordExtended from '/src/game/GuesswordExtended.vue'
 
 const sceneButtons = [
   { name: 'scene1', label: '画室' },
@@ -88,6 +94,8 @@ const isGuesswordVisible = ref(false)
 const triggeredFromItem = ref(false) // 只有点击了放大图物品才设为 true
 const itemRef = ref(null)
 const sceneSwitcherRef = ref(null)
+const isGuesswordExtendedVisible = ref(false)
+
 
 
 // ✅ 道具位置数组
@@ -131,10 +139,10 @@ function handleDialogClick() {
   }
 }
 
-
 function onGuess(option) {
   console.log('猜测结果：', option)
-  isGuesswordVisible.value = false // ✅ 点完按钮隐藏组件
+  isGuesswordVisible.value = false         // 关闭第一组按钮
+  isGuesswordExtendedVisible.value = true  // 显示第二组按钮组件
 }
 
 // ✅ 道具点击使用全屏对话框
@@ -143,6 +151,12 @@ function onItemClicked(payload) {
   useFullDialog.value = true
   showDialogBox.value = true
   triggeredFromItem.value = true // ✅ 设置标志
+}
+
+function onExtendedGuess(option) {
+  console.log('第二组选项结果：', option)
+  isGuesswordExtendedVisible.value = false
+  // 如果你还想触发对话或剧情，可以在这里添加逻辑
 }
 
 // ✅ 场景切换 intent 显示系统提示对话框（全屏）

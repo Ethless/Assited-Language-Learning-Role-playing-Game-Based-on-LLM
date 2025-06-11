@@ -62,6 +62,11 @@ defineExpose({ hideOptions })
   top: 100px;
   right: 20px;
   z-index: 1000;
+  transition: transform 0.2s ease;
+}
+
+.toggle-icon:hover {
+  transform: scale(1.05);
 }
 
 .toggle-icon {

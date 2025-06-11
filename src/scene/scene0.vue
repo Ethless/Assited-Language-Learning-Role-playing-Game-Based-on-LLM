@@ -1,7 +1,7 @@
 <template>
   <div class="scene0">
-    <!-- 场景切换按钮 -->
-    <SceneSwitcher @changeScene="onChangeScene" :buttons="sceneButtons" />
+    <!-- ✅ 白色遮罩 -->
+    <div class="dialog-overlay-top"></div>
 
     <!-- 背景图层 -->
     <Background scene="scene0" />
@@ -15,22 +15,34 @@
       @ready="onStoryReady"
     />
 
-    <!-- 对话框 -->
-    <DialogBox
+    <!-- ✅ 对话框组件 -->
+    <DialogBoxfull
+      v-if="showDialogBox && useFullDialog"
       :character="dialog.character"
       :text="dialog.text"
+      @click="handleDialogClick"
+    />
+    <DialogBox
+      v-else-if="showDialogBox"
+      :character="dialog.character"
+      :text="dialog.text"
+      @click="handleDialogClick"
     />
 
-    <!-- 可点击区域：覆盖整个中间画面 -->
-    <div class="click-layer" @click="nextDialog"></div>
+    <!-- ✅ 场景切换按钮 -->
+    <SceneSwitcher @changeScene="onChangeScene" :buttons="sceneButtons" />
+
+    <!-- ✅ 点击层 -->
+    <div class="click-layer" @click="handleDialogClick"></div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import api from '@/api'
+
 import Background from '/src/components/Background.vue'
 import DialogBox from '/src/components/DialogBox.vue'
+import DialogBoxfull from '/src/components/DialogBox_fullscreen.vue'
 import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
 
@@ -42,22 +54,29 @@ const sceneButtons = [
   { name: 'scene3', label: '外婆的和服店' }
 ]
 
+// ✅ 对话控制逻辑
 const dialog = ref({ character: '', text: '' })
 const dialogs = ref([])
 const currentIndex = ref(0)
+const showDialogBox = ref(true)
+const useFullDialog = ref(false)
 
 function onStoryReady(generatedDialogs) {
   dialogs.value = generatedDialogs
   currentIndex.value = 0
   dialog.value = dialogs.value[0] || { character: '系统', text: '剧情为空' }
+  showDialogBox.value = true
+  useFullDialog.value = false
 }
 
-function nextDialog() {
+function handleDialogClick() {
   if (currentIndex.value < dialogs.value.length - 1) {
     currentIndex.value++
     dialog.value = dialogs.value[currentIndex.value]
+  } else if (showDialogBox.value) {
+    showDialogBox.value = false
   } else {
-    console.log('对话结束，可以切换场景')
+    console.log('剧情已结束且对话框隐藏')
   }
 }
 
@@ -74,16 +93,27 @@ function onChangeScene(newScene) {
   overflow: hidden;
 }
 
-/* 点击区域：默认覆盖整个中间区域 */
+/* ✅ 白色遮罩 */
+.dialog-overlay-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 175px);
+  background-color: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ✅ 点击层 */
 .click-layer {
   position: fixed;
   top: 75%;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 9999;
+  z-index: 100;
   background: transparent;
   cursor: pointer;
-  pointer-events: auto;
 }
 </style>

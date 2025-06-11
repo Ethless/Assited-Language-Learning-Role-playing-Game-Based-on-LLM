@@ -1,18 +1,26 @@
-<!-- Item.vue -->
 <template>
   <div class="items">
-    <!-- 道具贴图 -->
-    <img
+    <!-- 每个道具的容器，包括点击提示和贴图 -->
+    <div
       v-for="(img, index) in selectedImages"
       :key="index"
-      :src="img"
       :style="getImageStyle(positions[index])"
-      class="item-image"
-      alt="道具贴图"
-      @click="handleClick(index)"
-    />
+      class="item-wrapper"
+    >
+      <!-- 白色圆圈 + 外层透明边框 -->
+      <div class="click-circle-wrapper" @click="handleClick(index)">
+        <div class="click-circle"></div>
+      </div>
 
-    <!-- 居中放大的贴图 -->
+      <!-- 道具贴图（不再可点击） -->
+      <img
+        :src="img"
+        class="item-image"
+        alt="道具贴图"
+      />
+    </div>
+
+    <!-- 放大图 -->
     <img
       v-if="clickedImage"
       :src="clickedImage"
@@ -31,7 +39,7 @@ const emit = defineEmits(['itemClicked', 'cleared'])
 function clearClickedImage() {
   clickedImage.value = null
   emit('cleared')
-  this.wasCleared = true  // 添加标记
+  this.wasCleared = true
 }
 
 defineExpose({ clearClickedImage })
@@ -59,16 +67,13 @@ onMounted(() => {
 function getImageStyle(position) {
   return {
     position: 'absolute',
-    width: '100px',
-    height: 'auto',
     top: position.top,
     left: position.left,
-    cursor: 'pointer'
   }
 }
 
 function handleClick(index) {
-  clickedImage.value = selectedImages.value[index] // ✅ 设置放大图
+  clickedImage.value = selectedImages.value[index]
   emit('itemClicked', {
     character: '系统',
     text: `你点击了道具 ${index + 1}`
@@ -83,12 +88,13 @@ function handleClick(index) {
   height: 100%;
 }
 
-.item-image {
+.item-wrapper {
   position: absolute;
-  pointer-events: auto;
-  z-index: 10;
+  width: 100px;
+  height: auto;
 }
 
+/* 放大贴图 */
 .enlarged-image {
   position: fixed;
   top: 40%;
@@ -98,5 +104,44 @@ function handleClick(index) {
   transform: translate(-50%, -50%);
   z-index: 9999;
   pointer-events: none;
+}
+
+/* 道具贴图 */
+.item-image {
+  width: 80px;
+  height: auto;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+/* 外层半透明点击圈 */
+.click-circle-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 75%);
+  width: 28px;
+  height: 28px;
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+}
+
+/* 内部白色点击圈 */
+.click-circle {
+  width: 14px;
+  height: 14px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease-in-out;
+}
+
+.click-circle-wrapper:hover .click-circle {
+  transform: scale(1.5);
 }
 </style>

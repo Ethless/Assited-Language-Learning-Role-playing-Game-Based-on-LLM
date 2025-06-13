@@ -36,13 +36,15 @@
 
     <GuesswordExtended
       v-if="isGuesswordExtendedVisible"
-      :options1="['拿去画下来', '送给外婆', '装进罐子里']"
+      :options="currentActionJpOptions"
+      :jpName="currentJpName"
       @guess="onExtendedGuess"
     />
 
     <Guessword
       v-if="isGuesswordVisible"
-      :options="['丢掉', '拿去喂狗', '藏起来']"
+      :options="currentOptionsZh"
+      :jpName="currentJpName"
       @guess="onGuess"
     />
 
@@ -67,6 +69,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { computed } from 'vue'
 
 import Background from '/src/components/Background.vue'
 import DialogBox from '/src/components/DialogBox.vue'
@@ -77,6 +80,7 @@ import Item from '/src/components/Item.vue'
 import Notebook from '/src/components/Notebook.vue' // ✅ 引入笔记本组件
 import Guessword from '/src/game/Guessword.vue'
 import GuesswordExtended from '/src/game/GuesswordExtended.vue'
+import itemsData from '/src/assets/selection.json'
 
 const sceneButtons = [
   { name: 'scene1', label: '画室' },
@@ -95,7 +99,24 @@ const triggeredFromItem = ref(false) // 只有点击了放大图物品才设为 
 const itemRef = ref(null)
 const sceneSwitcherRef = ref(null)
 const isGuesswordExtendedVisible = ref(false)
+const currentItemId = ref(null)
+const currentJpName = ref('')
 
+
+
+const currentOptionsZh = computed(() => {
+  console.log('传入的名字是：', currentItemId.value)
+  const item = itemsData.find(i => i.id === Number(currentItemId.value))  // ✅ 类型匹配
+  console.log('传入的道具是：', item)
+  if (!item || !item.options) return []
+  return item.options.map(opt => opt.zh)
+})
+
+const currentActionJpOptions = computed(() => {
+  const item = itemsData.find(i => i.id === Number(currentItemId.value))
+  if (!item || !item.actions) return []
+  return item.actions.map(action => action.jp)
+})
 
 
 // ✅ 道具位置数组
@@ -145,13 +166,17 @@ function onGuess(option) {
   isGuesswordExtendedVisible.value = true  // 显示第二组按钮组件
 }
 
-// ✅ 道具点击使用全屏对话框
 function onItemClicked(payload) {
   dialog.value = payload
   useFullDialog.value = true
   showDialogBox.value = true
-  triggeredFromItem.value = true // ✅ 设置标志
+  triggeredFromItem.value = true
+
+  currentItemId.value = payload.itemId
+  currentJpName.value = payload.jpName  // 这里保存 jpName
 }
+
+
 
 function onExtendedGuess(option) {
   console.log('第二组选项结果：', option)

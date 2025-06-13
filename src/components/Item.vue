@@ -32,9 +32,21 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import selectionData from '/src/assets/selection.json'
 
 const clickedImage = ref(null)
 const emit = defineEmits(['itemClicked', 'cleared'])
+
+const nameMap = {}
+selectionData.forEach(item => {
+  const key = item.name.replace(/\s+/g, '').toLowerCase()
+  nameMap[key] = {
+    zh: item.zh,
+    jp: item.jp,
+    description: item.description,
+  }
+})
+
 
 function clearClickedImage() {
   clickedImage.value = null
@@ -74,11 +86,30 @@ function getImageStyle(position) {
 
 function handleClick(index) {
   clickedImage.value = selectedImages.value[index]
+
+  const decodedUrl = decodeURIComponent(selectedImages.value[index])
+  const fileName = decodedUrl.split('/').pop() || ''
+  const baseName = fileName.replace(/\.[^/.]+$/, '')
+  const key = baseName.replace(/\s+/g, '').toLowerCase()
+
+  // 从 selectionData 找对应 item
+  const item = selectionData.find(i => {
+    return i.name.replace(/\s+/g, '').toLowerCase() === key
+  })
+
+  const zhName = item?.zh || baseName
+  const jpName = item?.jp || ''
+  const desc = item?.description || '（暂无描述）'
+
   emit('itemClicked', {
+    itemId: item?.id || null,  // 这里保证不会报错
+    jpName: jpName,
     character: '系统',
-    text: `你点击了道具 ${index + 1}`
+    text: `【${jpName}（ ？？？）】\n※ ${desc}`
   })
 }
+
+
 </script>
 
 <style scoped>

@@ -74,7 +74,7 @@ onMounted(() => {
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100% - 175px); /* 除去下方对话框高度 */
+  height: calc(100% - 200px); /* 除去下方对话框高度 */
   background-color: transparent; /* 白色半透明 */
   pointer-events: auto;
   z-index: 0;
@@ -98,7 +98,7 @@ onMounted(() => {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 175px;
+  height: 200px;
   background-color: rgba(0, 0, 0, 0.5);
   pointer-events: auto;
   z-index: 0;

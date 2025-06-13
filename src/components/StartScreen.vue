@@ -70,7 +70,7 @@ const showHelp = () => {
   color: #fff;
   transform: translateY(-2px);
   /* 可选加轻微阴影，突出文字 */
-  text-shadow: 15px 15px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 15px 15px 2px rgba(0, 0, 0, 0.762);
 }
 
 .btn:active {

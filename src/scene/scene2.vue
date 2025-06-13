@@ -44,7 +44,9 @@
     <Guessword
       v-if="isGuesswordVisible"
       :options="currentOptionsZh"
+      :correctIndex="correctIndex"
       :jpName="currentJpName"
+      @close="onGuessClose" 
       @guess="onGuess"
     />
 
@@ -101,6 +103,7 @@ const sceneSwitcherRef = ref(null)
 const isGuesswordExtendedVisible = ref(false)
 const currentItemId = ref(null)
 const currentJpName = ref('')
+const guessedOption = ref(null)
 
 
 
@@ -118,6 +121,10 @@ const currentActionJpOptions = computed(() => {
   return item.actions.map(action => action.jp)
 })
 
+const correctIndex = computed(() => {
+  const item = itemsData.find(i => i.id === Number(currentItemId.value))
+  return item?.correct_num ?? -1
+})
 
 // ✅ 道具位置数组
 const itemPositions = ref([
@@ -135,7 +142,6 @@ function onStoryReady(generatedDialogs) {
   showDialogBox.value = true
   useFullDialog.value = false // 剧情使用普通对话框
 }
-
 
 function handleDialogClick() {
   itemRef.value?.clearClickedImage()
@@ -161,9 +167,14 @@ function handleDialogClick() {
 }
 
 function onGuess(option) {
+  guessedOption.value = option  // 只记录，不切换显示
   console.log('猜测结果：', option)
-  isGuesswordVisible.value = false         // 关闭第一组按钮
-  isGuesswordExtendedVisible.value = true  // 显示第二组按钮组件
+}
+
+function onGuessClose() {
+  isGuesswordVisible.value = false
+  isGuesswordExtendedVisible.value = true
+  // 可以这里判断 guessedOption.value 是否正确，做额外逻辑
 }
 
 function onItemClicked(payload) {
@@ -175,7 +186,6 @@ function onItemClicked(payload) {
   currentItemId.value = payload.itemId
   currentJpName.value = payload.jpName  // 这里保存 jpName
 }
-
 
 
 function onExtendedGuess(option) {

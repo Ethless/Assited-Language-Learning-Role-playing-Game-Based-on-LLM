@@ -1,20 +1,25 @@
 <template> 
-  <div class="guessword-overlay">
+  <div class="guessword-overlay" @click.self="handleOverlayClick">
     <!-- 白色遮罩（上半部分） -->
     <div class="overlay-top"></div>
 
     <!-- 黑色遮罩（底部） -->
     <div class="overlay-bottom"></div>
 
-    <!-- 🆕 打字提示文字 -->
+    <!-- 打字提示文字 -->
     <div class="guessword-text">{{ displayedText }}</div>
 
     <!-- 猜词按钮 -->
     <div class="options">
       <button
-        v-for="option in options"
+        v-for="(option, index) in options"
         :key="option"
         @click="handleClick(option)"
+        :class="{
+          'correct': hasClicked && index === props.correctIndex,
+          'incorrect': hasClicked && selectedOption === option && index !== props.correctIndex
+        }"
+        :disabled="hasClicked"
       >
         {{ option }}
       </button>
@@ -25,6 +30,9 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 
+const selectedOption = ref(null)
+const hasClicked = ref(false)
+
 const props = defineProps({
   options: {
     type: Array,
@@ -33,28 +41,54 @@ const props = defineProps({
   jpName: {
     type: String,
     default: ''
+  },
+  correctIndex: {
+    type: Number,
+    default: -1
   }
 })
 
-const emit = defineEmits(['guess'])
+const emit = defineEmits(['guess', 'close'])
 
 function handleClick(option) {
-  emit('guess', option)
+  if (!hasClicked.value) {
+    selectedOption.value = option
+    hasClicked.value = true
+    emit('guess', option)
+
+    const correctOption = props.options[Number(props.correctIndex)]
+    if (option === correctOption) {
+      fullText.value = '完全没错！你可以去笔记本中查看该词的更多意思。'
+      startTyping()
+      console.log('答对了')
+    } else {
+      fullText.value = '不是这个意思，去笔记本巩固吧。'
+      startTyping()
+    }
+  }
+}
+
+function handleOverlayClick() {
+  if (hasClicked.value) {
+    emit('close')
+    hasClicked.value = false
+    selectedOption.value = null
+  }
 }
 
 const displayedText = ref('')
+const fullText = ref('')
 let index = 0
 let timer = null
 
 function startTyping() {
   if (timer) clearInterval(timer)
 
-  const fullText = `请你对【${props.jpName}（ ？？？）】的意思进行推测。`
   displayedText.value = ''
   index = 0
   timer = setInterval(() => {
-    if (index < fullText.length) {
-      displayedText.value += fullText[index]
+    if (index < fullText.value.length) {
+      displayedText.value += fullText.value[index]
       index++
     } else {
       clearInterval(timer)
@@ -64,13 +98,14 @@ function startTyping() {
 }
 
 onMounted(() => {
+  fullText.value = `请你对【${props.jpName}（ ？？？）】的意思进行推测。`
   startTyping()
   console.log('传入的选项是：', props.options)
 })
 
-// 监听jpName变化，重新触发打字效果
 watch(() => props.jpName, (newVal, oldVal) => {
   if (newVal !== oldVal) {
+    fullText.value = `请你对【${props.jpName}（ ？？？）】的意思进行推测。`
     startTyping()
   }
 })
@@ -84,10 +119,8 @@ watch(() => props.jpName, (newVal, oldVal) => {
   width: 100vw;
   height: 100vh;
   z-index: 9999;
-  /* pointer-events: none;  去掉这一行 */
 }
 
-/* 上白遮罩 */
 .overlay-top {
   position: absolute;
   top: 0;
@@ -99,7 +132,6 @@ watch(() => props.jpName, (newVal, oldVal) => {
   z-index: 10;
 }
 
-/* 下黑遮罩 */
 .overlay-bottom {
   position: absolute;
   bottom: 0;
@@ -111,20 +143,17 @@ watch(() => props.jpName, (newVal, oldVal) => {
   z-index: 5;
 }
 
-/* 打字提示文字 */
 .guessword-text {
   position: absolute;
   bottom: 120px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 15;
-
   font-family: 'Source Han Sans SC', '思源黑体', sans-serif;
   font-size: 24px;
   line-height: 1.6;
   letter-spacing: 1px;
   color: #ffffff;
-
   text-shadow:
     -3px 0 #412E2E,
     3px 0 #412E2E,
@@ -136,7 +165,6 @@ watch(() => props.jpName, (newVal, oldVal) => {
     2px 2px #412E2E;
 }
 
-/* 猜词按钮区域 */
 .options {
   position: absolute;
   bottom: 300px;
@@ -158,10 +186,20 @@ button {
   color: white;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, border 0.3s ease;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background-color: rgba(0, 0, 0, 0.8);
+  /* 只有未禁用按钮才有hover效果 */
+}
+
+.correct {
+  border: 6px solid #4DC361; /* 绿色边框 */
+}
+
+.incorrect {
+  border: 6px solid #D34343; /* 红色边框 */
+  opacity: 1;
 }
 </style>

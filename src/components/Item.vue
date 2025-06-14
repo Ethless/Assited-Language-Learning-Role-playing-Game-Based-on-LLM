@@ -85,30 +85,46 @@ function getImageStyle(position) {
 }
 
 function handleClick(index) {
-  clickedImage.value = selectedImages.value[index]
-
-  const decodedUrl = decodeURIComponent(selectedImages.value[index])
+  const imgUrl = selectedImages.value[index]
+  const decodedUrl = decodeURIComponent(imgUrl)
   const fileName = decodedUrl.split('/').pop() || ''
   const baseName = fileName.replace(/\.[^/.]+$/, '')
-  const key = baseName.replace(/\s+/g, '').toLowerCase()
 
-  // 从 selectionData 找对应 item
-  const item = selectionData.find(i => {
-    return i.name.replace(/\s+/g, '').toLowerCase() === key
-  })
+  // 判断名字是否含空格、-、_
+  if (/[ \-_]/.test(baseName)) {
+    // 从词表随机找一个没有空格、-、_的词条
+    const candidates = selectionData.filter(item => !/[ \-_]/.test(item.name))
+    if (candidates.length === 0) {
+      console.warn('词表中没有符合条件的替代词条')
+      return
+    }
+    const randomItem = candidates[Math.floor(Math.random() * candidates.length)]
 
-  const zhName = item?.zh || baseName
-  const jpName = item?.jp || ''
-  const desc = item?.description || '（暂无描述）'
+    clickedImage.value = imgUrl // 放大图还是用当前点击的图片
 
-  emit('itemClicked', {
-    itemId: item?.id || null,  // 这里保证不会报错
-    jpName: jpName,
-    character: '系统',
-    text: `【${jpName}（ ？？？）】\n※ ${desc}`
-  })
+    emit('itemClicked', {
+      itemId: randomItem.id,
+      jpName: randomItem.jp,
+      character: '系统',
+      text: `【${randomItem.jp}（ ？？？）】\n※ ${randomItem.description || '（暂无描述）'}`
+    })
+  } else {
+    // 正常根据图片名匹配词条
+    const key = baseName.replace(/\s+/g, '').toLowerCase()
+    const item = selectionData.find(i => {
+      return i.name.replace(/\s+/g, '').toLowerCase() === key
+    })
+
+    clickedImage.value = imgUrl
+
+    emit('itemClicked', {
+      itemId: item?.id || null,
+      jpName: item?.jp || '',
+      character: '系统',
+      text: `【${item?.jp || baseName}（ ？？？）】\n※ ${item?.description || '（暂无描述）'}`
+    })
+  }
 }
-
 
 </script>
 

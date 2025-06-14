@@ -29,6 +29,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import axios from 'axios'
 
 const selectedOption = ref(null)
 const hasClicked = ref(false)
@@ -45,26 +46,44 @@ const props = defineProps({
   correctIndex: {
     type: Number,
     default: -1
+  },
+  itemId: {
+    type: [String, Number],
+    required: false
   }
 })
 
+// 这里声明 emit 事件，父组件要监听 'guess'，参数改为数字 0 或 1
 const emit = defineEmits(['guess', 'close'])
 
 function handleClick(option) {
   if (!hasClicked.value) {
     selectedOption.value = option
     hasClicked.value = true
-    emit('guess', option)
 
     const correctOption = props.options[Number(props.correctIndex)]
-    if (option === correctOption) {
+
+    // 判断是否正确，0 表示错误，1 表示正确
+    let correct_judge = option === correctOption ? 1 : 0
+    emit('guess', { option, isCorrect: correct_judge })
+
+    if (correct_judge === 1) {
       fullText.value = '完全没错！你可以去笔记本中查看该词的更多意思。'
-      startTyping()
       console.log('答对了')
     } else {
       fullText.value = '不是这个意思，去笔记本巩固吧。'
-      startTyping()
     }
+    startTyping()
+
+    // 发送保存请求，带上 correct_judge
+    axios.post('http://localhost:8000/api/save-vocab', {
+        id: props.itemId,
+        correct_judge: correct_judge,
+    }).then(res => {
+      console.log('保存成功', res.data)
+    }).catch(err => {
+      console.error('保存失败', err)
+    })
   }
 }
 
@@ -110,6 +129,7 @@ watch(() => props.jpName, (newVal, oldVal) => {
   }
 })
 </script>
+
 
 <style scoped>
 .guessword-overlay {

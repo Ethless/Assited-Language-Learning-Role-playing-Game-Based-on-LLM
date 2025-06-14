@@ -1,15 +1,19 @@
 import os
 
-# 指定文件夹路径
-folder_path = "D:/Files/学业文档/大三下/人工智能系统/group/Assited-Language-Learning-Role-playing-Game-Based-on-LLM/src/assets/Items"
+folder = r
 
-# 获取文件夹中所有png文件名（不带路径）
-png_files = [f for f in os.listdir(folder_path) if f.lower().endswith('.png')]
+def should_delete(filename: str) -> bool:
+    # 文件名（不包含扩展名）含有空格、下划线、连字符就返回True
+    name, _ = os.path.splitext(filename)
+    return any(c in name for c in [' ', '_', '-'])
 
-# 写入txt文件
-with open('png_filenames.txt', 'w', encoding='utf-8') as f:
-    for filename in png_files:
-        name_without_ext = os.path.splitext(filename)[0]  # 去掉扩展名
-        f.write(name_without_ext + '\n')
+def main():
+    for fname in os.listdir(folder):
+        if fname.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+            if should_delete(fname):
+                file_path = os.path.join(folder, fname)
+                print(f"Deleting file: {file_path}")
+                os.remove(file_path)
 
-print(f'共写入 {len(png_files)} 个PNG文件名到 png_filenames.txt')
+if __name__ == "__main__":
+    main()

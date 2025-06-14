@@ -46,6 +46,7 @@
       :options="currentOptionsZh"
       :correctIndex="correctIndex"
       :jpName="currentJpName"
+      :itemId="currentItemId"
       @close="onGuessClose" 
       @guess="onGuess"
     />
@@ -59,7 +60,7 @@
     />
 
     <!-- ✅ 添加笔记本按钮组件 -->
-    <Notebook />
+    <Notebook :guessedCorrect="guessedCorrect" />
 
     <!-- 点击区域 -->
     <div
@@ -70,8 +71,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 import Background from '/src/components/Background.vue'
 import DialogBox from '/src/components/DialogBox.vue'
@@ -104,13 +104,13 @@ const isGuesswordExtendedVisible = ref(false)
 const currentItemId = ref(null)
 const currentJpName = ref('')
 const guessedOption = ref(null)
-
-
+const guessedCorrect = ref(null)
 
 const currentOptionsZh = computed(() => {
   console.log('传入的名字是：', currentItemId.value)
   const item = itemsData.find(i => i.id === Number(currentItemId.value))  // ✅ 类型匹配
   console.log('传入的道具是：', item)
+  
   if (!item || !item.options) return []
   return item.options.map(opt => opt.zh)
 })
@@ -166,9 +166,15 @@ function handleDialogClick() {
   }
 }
 
-function onGuess(option) {
-  guessedOption.value = option  // 只记录，不切换显示
-  console.log('猜测结果：', option)
+function onGuess(payload) {
+  // payload 现在是 { option: '狗', isCorrect: 1 }
+  console.log('猜测选项：', payload.option)
+  console.log('是否正确（1是0否）：', payload.isCorrect)
+
+  guessedOption.value = payload.option
+  guessedCorrect.value = payload.isCorrect  // 你需要定义 guessedCorrect 响应式变量
+
+  // 这里可以做进一步逻辑，比如控制 UI 或记录答题情况
 }
 
 function onGuessClose() {
@@ -184,7 +190,7 @@ function onItemClicked(payload) {
   triggeredFromItem.value = true
 
   currentItemId.value = payload.itemId
-  currentJpName.value = payload.jpName  // 这里保存 jpName
+  currentJpName.value = payload.jpName
 }
 
 

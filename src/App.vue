@@ -12,6 +12,7 @@
         <Notebook />
         <Items />
         <NPC />
+        <ClozeGenerator /> 
         <SaveExitButton @exit="exitToStart" />
       </div>
 
@@ -26,6 +27,7 @@ import { ref } from 'vue'
 import Background from './components/Background.vue'
 import StartScreen from './components/StartScreen.vue'
 import Notebook from './components/Notebook.vue'
+import ClozeGenerator from './components/ClozeGenerator.vue'
 import Items from './components/Item.vue'
 import NPC from './components/NPC.vue'
 import SaveExitButton from './components/SaveExitButton.vue'
@@ -33,6 +35,8 @@ import Scene0 from './scene/scene0.vue'
 import Scene1 from './scene/scene1.vue'
 import Scene2 from './scene/scene2.vue'
 import Scene3 from './scene/scene3.vue'
+
+
 
 const currentView = ref('start')
 const isFading = ref(false) // 控制黑幕状态

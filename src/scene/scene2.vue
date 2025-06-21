@@ -62,6 +62,9 @@
     <!-- ✅ 添加笔记本按钮组件 -->
     <Notebook :guessedCorrect="guessedCorrect" />
 
+    <!-- ✅ 添加完形填空按钮组件 -->
+    <ClozeGenerator /> 
+
     <!-- 点击区域 -->
     <div
     class="click-layer" 
@@ -80,6 +83,7 @@ import SceneSwitcher from './SceneSwitcher.vue'
 import StoryProvider from '/src/components/StoryProvider.vue'
 import Item from '/src/components/Item.vue'
 import Notebook from '/src/components/Notebook.vue' // ✅ 引入笔记本组件
+import ClozeGenerator from '/src/components/ClozeGenerator.vue'
 import Guessword from '/src/game/Guessword.vue'
 import GuesswordExtended from '/src/game/GuesswordExtended.vue'
 import itemsData from '/src/assets/selection.json'

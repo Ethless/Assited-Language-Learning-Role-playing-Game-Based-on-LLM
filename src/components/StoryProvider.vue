@@ -22,7 +22,7 @@ async function generateStory() {
       scene: props.scene
     })
 
-    const res = await api.get('/story/plot/first')
+    const res = await api.get('/story/ending')
     const plotText = res.data.plot || ''
 
     const lines = plotText

@@ -115,6 +115,12 @@ import api from "@/api";
 
 export default {
   name: 'ClozeGenerator',
+  props: {
+    background: {
+      type: String,
+      default: "在江户时代的日本，武士阶层统治着社会。普通百姓生活简朴，商人阶层开始崛起。" // 默认背景
+    }
+  },
   setup() {
     // 状态管理
     const showCloze = ref(false);
@@ -196,7 +202,8 @@ export default {
       const wordList = selectRandomWords(wordCount.value, correctRatio.value);
       
       // 背景故事（固定）
-      const background = "在江户时代的日本，武士阶层统治着社会。普通百姓生活简朴，商人阶层开始崛起。";
+      // 使用传入的背景，如果没有则使用默认值
+      const background = props.background; 
       
             try {
            const response = await api.post("/cloze/generate", {

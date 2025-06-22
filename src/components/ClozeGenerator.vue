@@ -40,7 +40,7 @@
                 
                     <!-- 添加清空按钮 -->
                     <button v-if="userAnswers[part]" class="clear-btn" @click.stop="clearBlank(part)">
-                        <i class="fas fa-times"></i>×
+                      ×
                     </button>
                 </div>
               </template>
@@ -533,7 +533,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(138, 138, 138, 0.439);
   display: flex;
   justify-content: center;
   align-items: center;

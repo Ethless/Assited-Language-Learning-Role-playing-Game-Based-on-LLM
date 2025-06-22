@@ -9,55 +9,59 @@
 
     <div v-if="showNote" class="notebook-overlay" @click.self="toggleNote">
       <img :src="notebookOpen" class="notebook-image" alt="打开的笔记本" />
+      <div class="adaptive-container">
+         
+          <div class="notebook-tabs">
+            <button @click="setCategory('vocabulary')">词汇</button>
+            <button @click="setCategory('events')">事件</button>
+            <button @click="setCategory('characters')">人物</button>
+          </div>
 
-      <div class="notebook-tabs">
-        <button @click="setCategory('vocabulary')">词汇</button>
-        <button @click="setCategory('events')">事件</button>
-        <button @click="setCategory('characters')">人物</button>
-      </div>
+           <!-- 关闭按钮，用来修bug的 -->
+          <button class="close-btn" @click="toggleNote">
+           ×
+          </button>
 
+          <!-- ✅ 正确率，只对 vocabulary 有效 -->
+          <div class="correct-rate" v-if="currentCategory.value === 'vocabulary'">
+            正确率: {{ correctRate }}%
+            </div>
 
-      <!-- ✅ 正确率，只对 vocabulary 有效 -->
-      <div class="correct-rate" v-if="currentCategory.value === 'vocabulary'">
-        正确率: {{ correctRate }}%
-        </div>
+          <div class="notebook-grid">
+            <div
+              v-for="(item, index) in displayedData"
+              :key="item.id || index"
+              class="notebook-cell"
+              :class="{ incorrect: item.correct_judge === 0 }"
+              @mouseover="hoveredIndex = index"
+              @mouseleave="hoveredIndex = null"
+            >
+              {{ item.jp }}（{{ item.zh }}）
 
+              <img
+                v-if="hoveredIndex === index"
+                :src="bubbleImg"
+                class="hover-bubble"
+                alt="提示"
+              />
 
+              <img
+                v-if="hoveredIndex === index"
+                :src="getItemImg(item.name)"
+                class="hover-item-img"
+                alt="道具图片"
+              />
+            </div>
+          </div>
 
-      <div class="notebook-grid">
-        <div
-          v-for="(item, index) in displayedData"
-          :key="item.id || index"
-          class="notebook-cell"
-          :class="{ incorrect: item.correct_judge === 0 }"
-          @mouseover="hoveredIndex = index"
-          @mouseleave="hoveredIndex = null"
-        >
-          {{ item.jp }}（{{ item.zh }}）
+          <div class="notebook-pagination">
+            <button @click="prevPage" :disabled="currentPage === 1"><</button>
+            <span class="pagination-info">{{ currentPage }} / {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages">></button>
 
-          <img
-            v-if="hoveredIndex === index"
-            :src="bubbleImg"
-            class="hover-bubble"
-            alt="提示"
-          />
-
-          <img
-            v-if="hoveredIndex === index"
-            :src="getItemImg(item.name)"
-            class="hover-item-img"
-            alt="道具图片"
-          />
-        </div>
-      </div>
-
-      <div class="notebook-pagination">
-        <button @click="prevPage" :disabled="currentPage === 1"><</button>
-        <span class="pagination-info">{{ currentPage }} / {{ totalPages }}</span>
-        <button @click="nextPage" :disabled="currentPage === totalPages">></button>
-
-        <!-- 正确率放在分页条右侧 -->
-        <div class="correct-rate">正确率: {{ correctRate }}%</div>
+            <!-- 正确率放在分页条右侧 -->
+            <div class="correct-rate">正确率: {{ correctRate }}%</div>
+          </div>
       </div>
     </div>
   </div>
@@ -210,29 +214,76 @@ onMounted(async () => {
   z-index: 2000;
 }
 
+.adaptive-container {
+    /* 使用视口单位确保在窗口内尽可能大 */
+    width: 100%;     /* 最大宽度不超过父容器 */
+    height: 100%;    /* 最大高度不超过父容器 */
+    top:  47%;
+    left: 50%;
+    object-fit: contain;
+    transform: translate(-50%, -50%);
+     /* 固定比例 */
+    aspect-ratio: 701/463; /* 16:9比例 */
+    /* 最大尺寸限制 */
+    min-width: 200px; /* 最小宽度限制 */
+    min-height: 400px; /* 最小高度限制 */
+    /* 居中显示 */
+    position: fixed;
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+    z-index: 2;
+}
+
 .notebook-image {
-  position: absolute;
-  width: 100vw;
-  height: 100vh;
-  top: -40px;
+  position: relative;
+  top: -3%;
   left: 0;
-  object-fit: cover;
+  flex: 1;
+  max-width: 100vw;     /* 最大宽度不超过父容器 */
+  max-height: 100vh;    /* 最大高度不超过父容器 */
+  min-width: 501px;     /* 最大宽度不超过父容器 */
+  min-height: 331px;    /* 最大高度不超过父容器 */
+  object-fit: contain;
   pointer-events: none;
   z-index: 1;
   transition: opacity 0.3s ease;
+  overflow: visible;
+}
+
+/*关闭按钮*/
+.close-btn {
+  position: absolute;
+  top: calc(41% - 15vw);
+  right: 13%;
+  z-index: 3;
+  background: none;
+  border: none;
+  color: rgb(49, 33, 33);
+  font-size: 2.0rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.close-btn:hover {
+  transform: rotate(90deg);
 }
 
 .notebook-tabs {
+  width: 18%;
+  height: 100px;
   position: absolute;
-  bottom: 60px;
-  left: 305px;
+  bottom: calc(27% - 15vw);
+  left: 24%;
   z-index: 3;
   display: flex;
-  gap: 32px;
+  gap: 2%;
 }
 
 .notebook-tabs button {
-  padding: 25px 22px;
+  z-index: 3;
+  width: 50%;
+  height: 100%;
   font-size: 16px;
   font-family: 'Source Han Serif SC', serif;
   background-color: transparent;
@@ -248,10 +299,10 @@ onMounted(async () => {
 .notebook-grid {
   position: absolute;
   z-index: 2;
-  top: 90px;
+  top: calc(43% - 15vw);
   left: 52%;
   transform: translateX(-50%);
-  width: 75%;
+  width: 70%;
   max-width: 1000px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -293,7 +344,7 @@ onMounted(async () => {
 
 .notebook-pagination {
   position: absolute;
-  bottom: 160px;
+  bottom: calc(45% - 15vw);;
   left: 52%;
   transform: translateX(-50%);
   z-index: 3;

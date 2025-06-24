@@ -93,7 +93,6 @@ import itemsData from '/src/assets/selection.json'
 const sceneButtons = [
   { name: 'scene1', label: '画室' },
   { name: 'scene2', label: '庭院' },
-  { name: 'scene3', label: '外婆的和服店' },
   { name: 'scene4', label: '集市街头' },
   { name: 'scene5', label: '河边草地' }
 ]
@@ -234,7 +233,6 @@ function onChangeScene(newScene) {
   overflow: hidden;
 }
 
-<<<<<<< HEAD
 /* ✅ 确保道具组件显示正常 */
 :deep(.items) {
   position: absolute;
@@ -251,26 +249,14 @@ function onChangeScene(newScene) {
 }
 
 /* 点击层样式 */
-=======
-/* 点击区域：默认覆盖整个中间区域 */
->>>>>>> 22e6769108c46fee0eb3c5a3984bde98fee8f501
 .click-layer {
   position: fixed;
   top: 75%;
   left: 0;
   width: 100%;
   height: 100%;
-<<<<<<< HEAD
   z-index: 100;
   background: transparent;
   cursor: pointer;
 }
 </style>
-=======
-  z-index: 9999;
-  background: transparent;
-  cursor: pointer;
-  pointer-events: auto;
-}
-</style>
->>>>>>> 22e6769108c46fee0eb3c5a3984bde98fee8f501

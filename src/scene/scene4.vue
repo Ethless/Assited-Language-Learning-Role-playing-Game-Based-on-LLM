@@ -138,10 +138,10 @@ const correctIndex = computed(() => {
 
 // ✅ 道具位置数组
 const itemPositions = ref([
-  { top: '65%', left: '500px' },
-  { top: '80%', left: '300px' },
-  { top: '70%', left: '100px' },
-  { top: '80%', left: '700px' },
+  { top: '40%', left: '500px' },
+  { top: '33%', left: '300px' },
+  { top: '50%', left: '100px' },
+  { top: '45%', left: '700px' },
 ])
 
 // ✅ StoryProvider 回调

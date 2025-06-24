@@ -1,14 +1,10 @@
-<<<<<<< HEAD
 [
   {
-    "id": 241,
-    "name": "planter",
-    "zh": "花盆",
-    "jp": "プランター",
-    "correct_num": 0,
-    "correct_judge": 0
+    "id": 430,
+    "name": "wrench",
+    "zh": "扳手",
+    "jp": "レンチ",
+    "correct_num": 2,
+    "correct_judge": 1
   }
 ]
-=======
-[]
->>>>>>> 22e6769108c46fee0eb3c5a3984bde98fee8f501

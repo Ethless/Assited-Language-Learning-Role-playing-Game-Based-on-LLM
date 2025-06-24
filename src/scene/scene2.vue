@@ -91,8 +91,6 @@ import itemsData from '/src/assets/selection.json'
 const sceneButtons = [
   { name: 'scene1', label: '画室' },
   { name: 'scene3', label: '外婆的和服店' },
-  { name: 'scene4', label: '集市街头'},
-  { name: 'scene5', label: '河边草地' }
 ]
 
 // 对话控制逻辑

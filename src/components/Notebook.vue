@@ -66,7 +66,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import notebookIcon from '@/assets/notebook-icon.svg'
-import bubbleImg from '@/assets/notebook/bubble.svg'
+import bubbleImg from '@/assets/notebook/bubble.png'
 
 const showNote = ref(false)
 const currentCategory = ref('vocabulary')

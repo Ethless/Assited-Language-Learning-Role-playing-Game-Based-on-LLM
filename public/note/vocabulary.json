@@ -1,10 +1,18 @@
 [
   {
-    "id": 430,
-    "name": "wrench",
-    "zh": "扳手",
-    "jp": "レンチ",
+    "id": 318,
+    "name": "sneaker",
+    "zh": "运动鞋",
+    "jp": "スニーカー",
     "correct_num": 2,
-    "correct_judge": 1
+    "correct_judge": 0
+  },
+  {
+    "id": 334,
+    "name": "sponge",
+    "zh": "海绵",
+    "jp": "スポンジ",
+    "correct_num": 2,
+    "correct_judge": 0
   }
 ]

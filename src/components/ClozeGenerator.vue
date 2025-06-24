@@ -121,7 +121,7 @@ export default {
       default: "在江户时代的日本，武士阶层统治着社会。普通百姓生活简朴，商人阶层开始崛起。" // 默认背景
     }
   },
-  setup() {
+  setup(props) {
     // 状态管理
     const showCloze = ref(false);
     const vocabulary = ref([]);

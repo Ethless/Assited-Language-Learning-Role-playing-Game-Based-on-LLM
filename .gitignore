@@ -28,3 +28,18 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+# Python
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.ipynb_checkpoints
+
+# Vue/Node (根据你的项目类型可能需要)
+node_modules/
+dist/
+
+# 其他可能的日志/临时文件
+*.log
+.DS_Store
+.env

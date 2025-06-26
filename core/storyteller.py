@@ -43,10 +43,11 @@ class storyteller:
         请用{self._perspective_text(perspective)}生成一个100~200 字的文学化剧情段落，将前面的剧情自然的连接到结局剧情。
         要求：
         1. 每次生成100-200字的一段剧情
-        2. 剧情需自然承接之前的剧情总结
+        2. 剧情需从给出的剧情总结开始
         3. 自然的衔接前置剧情和结局剧情
         4. 保持场景一致性
-        5. 以结局剧情结尾
+        5. 以前置剧情开头
+        6. 以结局剧情结尾
         """
         response = self.client.generate(messages=[{"role": "user", "content": prompt}])
         return {"plot": response}
